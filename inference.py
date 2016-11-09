@@ -155,17 +155,15 @@ class ExactInference(InferenceModule):
         # Replace this code with a correct observation update
         # Be sure to handle the "jail" edge case where the ghost is eaten
         # and noisyDistance is None
-        if noisyDistance is None:
-            self.particles = [self.getJailPosition()] * self.numParticles
+        allPossible = util.Counter()
+
+        if noisyDistance == None: 
+            #allPossible = util.Counter()
+            allPossible[self.getJailPosition()] = 1.0
         else:
-            beliefs = util.Counter()
-            for p in self.particles:
-                distance = util.manhattanDistance(pacmanPosition, p)
-                beliefs[p] += emissionModel[distance]
-            if all(i == 0 for i in beliefs.values()):
-                self.initializeUniformly(gameState)
-            else:
-                self.particles = [util.sample(beliefs) for i in self.particles]
+            for location in self.legalPositions:
+                distance = util.manhattanDistance(location, pacmanPosition)
+                allPossible[location] = emissionModel[distance] * self.beliefs[location]
                 
         #allPossible = util.Counter()
         #for p in self.legalPositions:
